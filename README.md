@@ -152,7 +152,7 @@
 
   <footer>
     <p><strong>Alamat Toko:</strong> Jl. Ceria No.123, Kota Bahagia, Indonesia</p>
-    <p>📞 0812-3456-7890 | ✉️ tokoceria@email.com</p>
+    <p>📞 0853-7086-7878 | ✉️ tokoceria@email.com</p>
     <p>🕒 Buka: Senin - Sabtu (08.00 - 17.00)</p>
   </footer>
 
