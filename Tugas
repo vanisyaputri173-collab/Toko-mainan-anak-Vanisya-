@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Toko Mainan Anak Ceria</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      background: #f7f8fa;
+    }
+
+    header {
+      background-color: #2196f3;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      font-size: 1.5rem;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 15px;
+      padding: 20px;
+    }
+
+    .product {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 15px;
+      text-align: center;
+    }
+
+    .product img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    button {
+      background-color: #ff9800;
+      border: none;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #e68900;
+    }
+
+    #cart {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #4caf50;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    #cart-items {
+      position: fixed;
+      right: 20px;
+      bottom: 80px;
+      background: white;
+      width: 270px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      display: none;
+      padding: 15px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    .cart-item {
+      border-bottom: 1px solid #ddd;
+      padding: 5px 0;
+      font-size: 0.9rem;
+    }
+
+    .total {
+      text-align: center;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+
+    input {
+      width: 100%;
+      padding: 6px;
+      margin: 4px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 0.9rem;
+    }
+
+    footer {
+      background-color: #ffffff;
+      color: #333;
+      text-align: center;
+      padding: 15px;
+      font-size: 0.9rem;
+      border-top: 1px solid #ddd;
+      margin-top: 20px;
+    }
+
+    .checkout-btn {
+      width: 100%;
+      background-color: #2196f3;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 5px;
+    }
+
+    .checkout-btn:hover {
+      background-color: #1976d2;
+    }
+  </style>
+</head>
+<body>
+
+  <header>🧸 Toko Mainan Anak Vanisya</header>
+
+  <div class="container" id="product-list"></div>
+
+  <div id="cart" onclick="toggleCart()">🛒 Keranjang (<span id="cart-count">0</span>)</div>
+
+  <div id="cart-items">
+    <h4>Keranjang Belanja</h4>
+    <div id="items"></div>
+    <div class="total">Total: Rp <span id="total">0</span></div>
+
+    <h4>🧾 Data Pembeli</h4>
+    <input type="text" id="nama" placeholder="Nama Lengkap">
+    <input type="text" id="alamat" placeholder="Alamat Pengiriman">
+    <input type="text" id="hp" placeholder="Nomor HP">
+    <button class="checkout-btn" onclick="checkout()">Checkout</button>
+  </div>
+
+  <footer>
+    <p><strong>Alamat Toko:</strong> Jl. Ceria No.123, Kota Bahagia, Indonesia</p>
+    <p>📞 0812-3456-7890 | ✉️ tokoceria@email.com</p>
+    <p>🕒 Buka: Senin - Sabtu (08.00 - 17.00)</p>
+  </footer>
+
+  <script>
+    const products = [
+      { id: 1, name: "Mobil Aki Anak", price: 850000, image: "https://cdn.pixabay.com/photo/2016/11/29/10/07/toy-car-1869616_1280.jpg" },
+      { id: 2, name: "Boneka Teddy Bear", price: 120000, image: "https://cdn.pixabay.com/photo/2016/11/29/05/14/bear-1867590_1280.jpg" },
+      { id: 3, name: "Robot Mainan", price: 150000, image: "https://cdn.pixabay.com/photo/2015/02/02/11/09/robot-620822_1280.jpg" },
+      { id: 4, name: "Balok Susun", price: 90000, image: "https://cdn.pixabay.com/photo/2016/03/27/19/31/toys-1284129_1280.jpg" },
+      { id: 5, name: "Pesawat Mainan", price: 110000, image: "https://cdn.pixabay.com/photo/2016/11/29/03/53/plane-1866944_1280.jpg" }
+    ];
+
+    const productList = document.getElementById("product-list");
+    const cartCount = document.getElementById("cart-count");
+    const cartItems = document.getElementById("items");
+    const totalPrice = document.getElementById("total");
+
+    let cart = [];
+
+    function displayProducts() {
+      products.forEach(p => {
+        const div = document.createElement("div");
+        div.className = "product";
+        div.innerHTML = `
+          <img src="${p.image}" alt="${p.name}">
+          <h3>${p.name}</h3>
+          <p>Rp ${p.price.toLocaleString()}</p>
+          <button onclick="addToCart(${p.id})">Tambah ke Keranjang</button>
+        `;
+        productList.appendChild(div);
+      });
+    }
+
+    function addToCart(id) {
+      const product = products.find(p => p.id === id);
+      cart.push(product);
+      updateCart();
+    }
+
+    function updateCart() {
+      cartCount.textContent = cart.length;
+      cartItems.innerHTML = "";
+      let total = 0;
+      cart.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "cart-item";
+        div.textContent = `${item.name} - Rp ${item.price.toLocaleString()}`;
+        cartItems.appendChild(div);
+        total += item.price;
+      });
+      totalPrice.textContent = total.toLocaleString();
+    }
+
+    function toggleCart() {
+      const panel = document.getElementById("cart-items");
+      panel.style.display = (panel.style.display === "block") ? "none" : "block";
+    }
+
+    function checkout() {
+      const nama = document.getElementById("nama").value;
+      const alamat = document.getElementById("alamat").value;
+      const hp = document.getElementById("hp").value;
+      if (!nama || !alamat || !hp) {
+        alert("Harap isi semua data pembeli terlebih dahulu!");
+        return;
+      }
+      if (cart.length === 0) {
+        alert("Keranjang masih kosong!");
+        return;
+      }
+
+      let pesan = `🧾 Pesanan Baru dari ${nama}\n📍 Alamat: ${alamat}\n📞 HP: ${hp}\n\nBarang:\n`;
+      let total = 0;
+      cart.forEach(item => {
+        pesan += `- ${item.name} (Rp ${item.price.toLocaleString()})\n`;
+        total += item.price;
+      });
+      pesan += `\n💰 Total: Rp ${total.toLocaleString()}\n\nTerima kasih telah berbelanja di Toko Mainan Anak Ceria! 🧸`;
+
+      alert(pesan);
+    }
+
+    displayProducts();
+  </script>
+
+</body>
+</html>
